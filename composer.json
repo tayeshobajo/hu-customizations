@@ -1,0 +1,23 @@
+{
+  "name": "tayeshobajo/hu-customizations",
+  "description": "Core WordPress Customization for Hazmat",
+  "type": "wordpress-plugin",
+  "autoload": {
+    "psr-4": {
+      "HUCustomizations\\": "src/"
+    },
+    "files": [
+      "src/Functions/utils.php"
+    ]
+  },
+  "authors": [
+    {
+      "name": "Taye Shobajo",
+      "email": "shobajotaye@gmail.com"
+    }
+  ],
+  "require": {
+    "tzsk/otp": "^7.0",
+    "twilio/sdk": "^7.7"
+  }
+}
