@@ -1,18 +1,18 @@
 <?php
 
-namespace HUCustomizations\Core;
+namespace HUCustomizations\Core\LMS;
 
 class Init {
 
     public function __construct()
     {
-        $this->init();
+        if ( is_plugin_active( 'sfwd-lms/sfwd_lms.php' ) ) {
+            $this->init();
+        }
     }
 
     public function init() {
-        PageRestriction::get_instance();
-        SpecialPriceGroups::get_instance();
-        \HUCustomizations\Core\LMS\Init::get_instance();
+        SingleCourse::get_instance();
     }
 
     /**
