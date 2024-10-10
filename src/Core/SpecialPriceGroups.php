@@ -127,36 +127,36 @@ class SpecialPriceGroups {
 
             $products = new \WP_Query($args);
 
-            foreach ($products as $product) {
-                $product_id = $product->ID;
-                $product_name = $product->post_title;
-                $currency = get_woocommerce_currency_symbol();
+            $pdf->SetFont('helvetica', '', 10);
 
-                $special_pricing = get_field('special_pricing', $product_id);
+            $pdf->Cell(20, 10, 'No.', 1);
+            $pdf->Cell(80, 10, 'Product Name', 1);
+            $pdf->Cell(20, 10, 'Price', 1);
+            $pdf->Ln();
 
-                if(!empty($special_pricing)) {
-                    $pdf->SetFont('helvetica', '', 10);
+            if($products->have_posts()) {
+                $count = 0;
+                foreach ($products->get_posts() as $product) {
+                    $product_id = $product->ID;
+                    $product_name = $product->post_title;
 
-                    $pdf->Cell(20, 10, 'No.', 1);
-                    $pdf->Cell(60, 10, 'Price', 1);
-                    $pdf->Cell(0, 10, 'Product Name', 1);
-                    $pdf->Ln();
+                    $special_pricing = get_field('special_pricing', $product_id);
 
-                    $count = 0;
+                    if(!empty($special_pricing)) {
+                        foreach ($special_pricing as $special_price) {
+                            $pricing_group_name = $special_price['pricing_group_name'];
+                            $special_price = $special_price['special_price'];
 
-                    foreach ($special_pricing as $special_price) {
-                        $pricing_group_name = $special_price['pricing_group_name'];
-                        $special_price = $special_price['special_price'];
-
-                        if($pricing_group_name !== $term_id) continue;
-
-                        $pdf->Cell(20, 10, ++$count, 1);
-                        $pdf->Cell(60, 10, sprintf('$%s', $special_price), 1);
-                        $pdf->Cell(0, 10, $product_name, 1);
-                        $pdf->Ln();
+                            if($pricing_group_name == $term_id) {
+                                $pdf->Cell(20, 10, ++$count, 1);
+                                $pdf->Cell(80, 10, $product_name, 1);
+                                $pdf->Cell(20, 10, sprintf('$%s', $special_price), 1);
+                                $pdf->Ln();
+                            }
+                        }
                     }
-                }
 
+                }
             }
 
             // Set font back for table content
