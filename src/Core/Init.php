@@ -11,6 +11,7 @@ class Init {
 
     public function init() {
         PageRestriction::get_instance();
+        SpecialPriceGroups::get_instance();
     }
 
     /**

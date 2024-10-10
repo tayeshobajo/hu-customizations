@@ -13,7 +13,7 @@ class PageRestriction {
 
     public function add_restrict_user_roles_meta_box()
     {
-        $post_type =  get_post_types( [], 'names' );
+        $post_type =  get_post_types( ['public' => true ], 'names' );
         add_meta_box(
             'restrict_user_roles_meta_box',
             'Restrict by User Role',
@@ -56,7 +56,7 @@ class PageRestriction {
 
     public function restrict_page_by_user_role()
     {
-        $post_type =  get_post_types( [], 'names' );
+        $post_type =  get_post_types( ['public' => true ], 'names' );
         if (is_singular($post_type)) {
             global $post;
 
