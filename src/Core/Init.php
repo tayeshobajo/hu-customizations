@@ -10,6 +10,7 @@ class Init {
     {
         $this->init();
         add_action('wp_enqueue_scripts', array($this, 'enqueue_customization_styles'));
+        add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_customization_styles'));
     }
 
     public function init() {
@@ -21,6 +22,10 @@ class Init {
 
     public function enqueue_customization_styles() {
         wp_enqueue_style( 'hu-customization', HU_CUSTOMIZATIONS_SYSTEM_ASSETS_URL. '/css/hu-customization.css', array(), time() );
+    }
+
+    public function admin_enqueue_customization_styles() {
+        wp_enqueue_style( 'hu-customization-admin', HU_CUSTOMIZATIONS_SYSTEM_ASSETS_URL. '/css/hu-customization-admin.css', array(), time() );
     }
 
     /**

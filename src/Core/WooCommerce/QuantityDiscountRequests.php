@@ -7,10 +7,10 @@ class QuantityDiscountRequests {
     public function __construct()
     {
         add_action('woocommerce_after_add_to_cart_button', array($this, 'add_request_button_at_category'), 10, 0);
-        add_filter( 'gform_pre_render_5', array($this, 'populate_product_categories') );
-        add_filter( 'gform_pre_validation_5', array($this, 'populate_product_categories') );
-        add_filter( 'gform_pre_submission_filter_5', array($this, 'populate_product_categories') );
-        add_filter( 'gform_admin_pre_render_5', array($this, 'populate_product_categories') );
+        add_filter( 'gform_pre_render_6', array($this, 'populate_product_categories') );
+        add_filter( 'gform_pre_validation_6', array($this, 'populate_product_categories') );
+        add_filter( 'gform_pre_submission_filter_6', array($this, 'populate_product_categories') );
+        add_filter( 'gform_admin_pre_render_6', array($this, 'populate_product_categories') );
     }
 
     public function populate_product_categories( $form )

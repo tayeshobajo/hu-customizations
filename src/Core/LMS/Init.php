@@ -13,6 +13,7 @@ class Init {
 
     public function init() {
         SingleCourse::get_instance();
+        Quiz::get_instance();
     }
 
     /**
