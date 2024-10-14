@@ -1,0 +1,25 @@
+.kwt-add-to-cart-wrap .btn-atc {
+    width: 100%;
+    margin-top: 20px;
+    background: var(--global-palette-btn-bg, #3633E1);
+    color: var(--global-palette-btn, #FFFFFF) !important;;
+    font-weight: 700;
+    padding: .4em 1em;
+    cursor: pointer;
+    font-size: 1.125rem;
+    transition: all .3s ease-in-out;
+    box-shadow: none;
+    letter-spacing: 1px;
+    font-family: 'Open Sans', sans-serif;
+    text-transform: uppercase;
+    border-radius: 8px;
+}
+
+.kwt-add-to-cart-wrap .btn-atc:hover {
+    color: var(--global-palette-btn-hover, #FFFFFF) !important;;
+    background: var(--global-palette-btn-bg-hover, #2F2FFC);
+}
+
+.kwt-add-to-cart-wrap form.cart {
+    flex-wrap: wrap;
+}

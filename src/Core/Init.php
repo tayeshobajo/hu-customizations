@@ -2,17 +2,25 @@
 
 namespace HUCustomizations\Core;
 
+use WooCommerce;
+
 class Init {
 
     public function __construct()
     {
         $this->init();
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_customization_styles'));
     }
 
     public function init() {
         PageRestrictions::get_instance();
         SpecialPriceGroups::get_instance();
         \HUCustomizations\Core\LMS\Init::get_instance();
+        \HUCustomizations\Core\WooCommerce\Init::get_instance();
+    }
+
+    public function enqueue_customization_styles() {
+        wp_enqueue_style( 'hu-customization', HU_CUSTOMIZATIONS_SYSTEM_ASSETS_URL. '/css/hu-customization.css', array(), time() );
     }
 
     /**
