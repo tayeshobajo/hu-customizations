@@ -7,10 +7,10 @@ class QuantityDiscountRequests {
     public function __construct()
     {
         add_action('woocommerce_after_add_to_cart_button', array($this, 'add_request_button_at_category'), 10, 0);
-        add_filter( 'gform_pre_render_8', array($this, 'populate_product_categories') );
-        add_filter( 'gform_pre_validation_8', array($this, 'populate_product_categories') );
-        add_filter( 'gform_pre_submission_filter_8', array($this, 'populate_product_categories') );
-        add_filter( 'gform_admin_pre_render_8', array($this, 'populate_product_categories') );
+        add_filter( 'gform_pre_render_5', array($this, 'populate_product_categories') );
+        add_filter( 'gform_pre_validation_5', array($this, 'populate_product_categories') );
+        add_filter( 'gform_pre_submission_filter_5', array($this, 'populate_product_categories') );
+        add_filter( 'gform_admin_pre_render_5', array($this, 'populate_product_categories') );
     }
 
     public function populate_product_categories( $form )
@@ -29,7 +29,7 @@ class QuantityDiscountRequests {
             $choices = array();
             if ( !is_wp_error( $terms ) && !empty( $terms ) ) {
                 foreach ( $terms as $term ) {
-                    $choices[] = array( 'text' => $term->name, 'value' => $term->name );
+                    $choices[] = array( 'text' => $term->name, 'value' => $term->slug );
                 }
             }
 
@@ -48,10 +48,8 @@ class QuantityDiscountRequests {
             $category = get_queried_object();
 
             if ($category && isset($category->name)) {
-                $category_name = urlencode($category->name);
-
                 // Construct the custom URL with the category name
-                $custom_url = get_site_url().'/quantity-discount-requests/?request=' . $category_name;
+                $custom_url = get_site_url().'/quantity-discount-requests/?request=' . $category->slug;
 
                 // Output the custom button
                 echo '<a class="btn-atc" href="' . esc_url($custom_url) . '">' . esc_html__("DISCOUNT REQUEST") . '</a>';
