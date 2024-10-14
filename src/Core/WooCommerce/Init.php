@@ -1,18 +1,18 @@
 <?php
 
-namespace HUCustomizations\Core;
+namespace HUCustomizations\Core\WooCommerce;
 
 class Init {
 
     public function __construct()
     {
-        $this->init();
+        if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
+            $this->init();
+        }
     }
 
     public function init() {
-        PageRestrictions::get_instance();
-        SpecialPriceGroups::get_instance();
-        \HUCustomizations\Core\LMS\Init::get_instance();
+        QuantityDiscountRequests::get_instance();
     }
 
     /**

@@ -2,7 +2,7 @@
 
 namespace HUCustomizations\Core;
 
-class PageRestriction {
+class PageRestrictions {
 
     public function __construct()
     {
