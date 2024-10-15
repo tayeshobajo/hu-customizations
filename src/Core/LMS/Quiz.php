@@ -10,6 +10,7 @@ class Quiz {
         add_action( 'admin_init', array($this, 'export_students_results'));
         add_filter( 'bulk_actions-edit-sfwd-quiz', [$this, 'custom_generate_quiz_callback']);
         add_filter( 'handle_bulk_actions-edit-sfwd-quiz', [$this, 'custom_export_students_pdf_callback_handler'], 10, 3 );
+        add_filter( 'handle_bulk_actions-edit-sfwd-quiz', [$this, 'custom_export_students_excel_callback_handler'], 10, 3 );
     }
 
     public function show_students_results_box() {
@@ -55,6 +56,12 @@ class Quiz {
             $post = get_post( $quiz_id );
             $post_title = $post->post_title;
 
+            $course_id = learndash_get_course_id($quiz_id);
+            $module_code = get_field('course_code', $course_id);
+
+            if(!empty($module_code)) {
+                $post_title .= ' (' . $module_code . ')';
+            }
             // Add a section header for each course
             $pdf->SetFont('helvetica', 'B', 12);
             $pdf->Cell(0, 10, $post_title, 0, 1, 'L');
@@ -79,6 +86,70 @@ class Quiz {
         $pdf->Output('generate-student-results.pdf', 'D');
 
         echo ob_get_clean();
+    }
+
+    public function custom_export_students_excel_callback_handler( $redirect_to, $doaction, $quiz_ids )
+    {
+        if ( $doaction !== 'export-student-results-excel' ) {
+            return $redirect_to;
+        }
+
+        require_once(HU_CUSTOMIZATIONS_SYSTEM_LIB_DIRECTORY. '/tcpdf/tcpdf.php');
+
+        $array_data = [];
+        foreach ( $quiz_ids as $quiz_id ) {
+
+            $activity_id = get_post_meta($quiz_id, 'show_xapi_content', true);
+            if(empty($activity_id)) continue;
+
+            $completed_quizzes = hazmat_fetch_completed_content($activity_id);
+
+            $post = get_post( $quiz_id );
+            $post_title = $post->post_title;
+
+            $course_id = learndash_get_course_id($quiz_id);
+            $module_code = get_field('course_code', $course_id);
+
+
+            if(!empty($completed_quizzes)) {
+                foreach($completed_quizzes as $quiz) {
+                    $user_id = $quiz['user_id'];
+                    $user = get_user_by('id', $user_id);
+                    $status = $quiz['status'];
+                    $percentage = $quiz['percentage'];
+                    $timespent = grassblade_seconds_to_time($quiz["timespent"]);
+                    $timestamp = gb_datetime($quiz["timestamp"]);
+                    $array_data[] = [
+                        'Quiz' => $post_title,
+                        'Module Code' => $module_code,
+                        'Student Name' => $user->display_name,
+                        'Student Email' => $user->user_email,
+                        'Score (%)' => $percentage,
+                        'Time Spent' => $timespent,
+                        'Status' => $status,
+                        'Date' => $timestamp
+                    ];
+                }
+            }
+        }
+
+        if(!empty($array_data)) {
+            $file_name = "generate-student-results.xls";
+            header("Content-Disposition: attachment; filename=\"$file_name\"");
+            header("Content-Type: application/vnd.ms-excel");
+
+            $column_names = false;
+            foreach($array_data as $row) {
+                if(!$column_names) {
+                    echo implode("\t", array_keys($row)) . "\n";
+                    $column_names = true;
+                }
+
+                array_walk($row, [$this, 'filter_students_data']);
+                echo implode("\t", array_values($row)) . "\n";
+            }
+            exit;
+        }
     }
 
 
@@ -202,7 +273,6 @@ class Quiz {
                     $user_id = $quiz['user_id'];
                     $user = get_user_by('id', $user_id);
                     $status = $quiz['status'];
-                    $score = $quiz['score'];
                     $percentage = $quiz['percentage'];
                     $timespent = grassblade_seconds_to_time($quiz["timespent"]);
                     $timestamp = gb_datetime($quiz["timestamp"]);
@@ -241,7 +311,7 @@ class Quiz {
 
     public function export_students_results()
     {
-        if(isset($_GET['hook']) && $_GET['hook'] == 'generate-student-results') {
+        if(isset($_GET['hook']) && $_GET['hook'] == 'generate-student-results' && isset($_GET['export']) && $_GET['export'] == 'pdf') {
             if(!isset($_GET['quiz_id'])) return;
 
             $quiz_id = $_GET['quiz_id'];
@@ -287,6 +357,70 @@ class Quiz {
 
             echo ob_get_clean();
         }
+
+        if(isset($_GET['hook']) && $_GET['hook'] == 'generate-student-results' && isset($_GET['export']) && $_GET['export'] == 'excel') {
+            if(!isset($_GET['quiz_id'])) return;
+
+            $quiz_id = $_GET['quiz_id'];
+
+            $activity_id = get_post_meta($quiz_id, 'show_xapi_content', true);
+            if(empty($activity_id)) return;
+
+            $quiz = get_post( $quiz_id );
+            $post_title = $quiz->post_title;
+
+            $course_id = learndash_get_course_id($quiz_id);
+            $module_code = get_field('course_code', $course_id);
+
+            $completed_quizzes = hazmat_fetch_completed_content($activity_id);
+
+            $array_data = [];
+            if(!empty($completed_quizzes)) {
+                foreach($completed_quizzes as $quiz) {
+                    $user_id = $quiz['user_id'];
+                    $user = get_user_by('id', $user_id);
+                    $status = $quiz['status'];
+                    $percentage = $quiz['percentage'];
+                    $timespent = grassblade_seconds_to_time($quiz["timespent"]);
+                    $timestamp = gb_datetime($quiz["timestamp"]);
+                    $array_data[] = [
+                            'Quiz' => $post_title,
+                            'Module Code' => $module_code,
+                            'Student Name' => $user->display_name,
+                            'Student Email' => $user->user_email,
+                            'Score (%)' => $percentage,
+                            'Time Spent' => $timespent,
+                            'Status' => $status,
+                            'Date' => $timestamp
+                    ];
+                }
+            }
+
+            if(!empty($array_data)) {
+                $file_name = "generate-student-results.xls";
+                header("Content-Disposition: attachment; filename=\"$file_name\"");
+                header("Content-Type: application/vnd.ms-excel");
+
+                $column_names = false;
+                foreach($array_data as $row) {
+                    if(!$column_names) {
+                        echo implode("\t", array_keys($row)) . "\n";
+                        $column_names = true;
+                    }
+
+                    array_walk($row, [$this, 'filter_students_data']);
+                    echo implode("\t", array_values($row)) . "\n";
+                }
+                exit;
+            }
+        }
+    }
+
+    public function filter_students_data( &$str )
+    {
+        $str = preg_replace("/\t/", "\\t", $str);
+        $str = preg_replace("/\r?\n/", "\\n", $str);
+        if(strstr($str, '"')) $str = '"' . str_replace('"', '""', $str) . '"';
     }
 
     /**
